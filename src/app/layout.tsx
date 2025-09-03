@@ -1,16 +1,6 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import Link from "next/link";
 import "./globals.css";
-
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
 
 export const metadata: Metadata = {
   title: "Create Next App",
@@ -23,11 +13,32 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
-        {children}
+    <html lang="en" className="bg-grid">
+      <body className="min-h-screen text-neutral-900 dark:text-neutral-100 selection:bg-neutral-900/90 selection:text-white dark:selection:bg-neutral-100 dark:selection:text-neutral-900">
+        <div className="fixed inset-0 -z-10 pointer-events-none" aria-hidden>
+          <div className="absolute inset-0 opacity-[0.55] dark:opacity-[0.35]" style={{background:"radial-gradient(circle at 30% 20%,rgba(99,102,241,0.18),transparent 60%),radial-gradient(circle at 70% 60%,rgba(244,63,94,0.18),transparent 65%)"}} />
+        </div>
+        <header className="sticky top-0 z-40 backdrop-blur-xl border-b border-neutral-200/70 dark:border-neutral-800/60 bg-white/70 dark:bg-neutral-950/50">
+          <div className="container h-16 flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-indigo-500 via-violet-500 to-fuchsia-500 shadow-md" />
+              <span className="font-semibold tracking-tight text-sm md:text-base">Syllabus → Calendar</span>
+            </div>
+            <nav className="hidden md:flex items-center gap-6 text-sm font-medium">
+              <Link href="/" className="hover:text-neutral-900 dark:hover:text-neutral-50 transition-colors">Home</Link>
+              <span className="text-neutral-400 cursor-not-allowed">Upload</span>
+              <span className="text-neutral-400 cursor-not-allowed">Calendar</span>
+              <button disabled className="btn-outline h-9 px-3">Login</button>
+            </nav>
+          </div>
+        </header>
+        <main className="container py-14">
+          {children}
+        </main>
+        <footer className="border-t border-neutral-200/70 dark:border-neutral-800/60 py-10 mt-20 text-center text-xs text-neutral-500 space-y-2">
+          <p>© {new Date().getFullYear()} Lawbandit Challenge Demo</p>
+          <p className="text-[11px]">Built with Next.js, Prisma & OpenAI</p>
+        </footer>
       </body>
     </html>
   );

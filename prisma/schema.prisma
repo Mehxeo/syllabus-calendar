@@ -1,0 +1,71 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum EventType {
+  ASSIGNMENT
+  READING
+  EXAM
+  OTHER
+}
+
+enum Role {
+  USER
+  ADMIN
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  name      String?
+  password  String?  // optional if using email magic link later
+  role      Role     @default(USER)
+  events    Event[]
+  documents SourceDocument[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model SourceDocument {
+  id          String   @id @default(cuid())
+  user        User     @relation(fields: [userId], references: [id])
+  userId      String
+  filename    String
+  mimeType    String
+  textContent String   // extracted full text
+  rawUrl      String?  // blob/storage reference
+  events      Event[]
+  createdAt   DateTime @default(now())
+}
+
+model Event {
+  id          String     @id @default(cuid())
+  user        User       @relation(fields: [userId], references: [id])
+  userId      String
+  sourceDoc   SourceDocument? @relation(fields: [sourceDocId], references: [id])
+  sourceDocId String?
+  title       String
+  type        EventType  @default(OTHER)
+  description String?
+  startDate   DateTime
+  endDate     DateTime?
+  confidence  Float?
+  rawLine     String?    // original syllabus line
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+
+  @@index([userId, startDate])
+  @@index([sourceDocId])
+}

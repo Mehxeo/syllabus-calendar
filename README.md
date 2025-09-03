@@ -1,36 +1,72 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Syllabus → Calendar (Lawbandit Challenge)
 
-## Getting Started
+Transform uploaded law school syllabi (PDF/DOCX/text) into structured, editable calendar events (assignments, readings, exams) with export + ICS generation and (optional) Google Calendar sync.
 
-First, run the development server:
+## Status
+MVP Scaffold in progress.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+## Stack
+- Next.js (App Router, TypeScript)
+- Prisma + PostgreSQL (Neon or local)
+- NextAuth (Email/password placeholder; can swap to magic link)
+- OpenAI (LLM structuring of syllabus lines to JSON)
+- TailwindCSS + (planned) shadcn/ui
+- date-fns, zod, ics
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## High-Level Flow
+1. User uploads syllabus (PDF / DOCX / paste text)
+2. Text extraction layer (pdf-parse / mammoth)
+3. Pre-parse regex + heuristic date + line segmentation
+4. LLM normalization -> JSON events (schema validated via zod)
+5. Review UI: filter low-confidence, edit inline
+6. Persist events -> calendar views (Month + List)
+7. Export: ICS file (download) & future Google Calendar push
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Data Model (Prisma)
+See `prisma/schema.prisma` for `User`, `SourceDocument`, `Event`.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Local Setup
+1. Clone & install deps:
+   ```bash
+   npm install
+   ```
+2. Create `.env`:
+   ```bash
+   DATABASE_URL="postgresql://USER:PASSWORD@HOST:PORT/DB?sslmode=require"
+   OPENAI_API_KEY="sk-..."
+   NEXTAUTH_SECRET="generate-a-long-random-string"
+   ```
+3. Generate client & push schema (dev only):
+   ```bash
+   npx prisma generate
+   npx prisma migrate dev --name init
+   ```
+4. Run dev server:
+   ```bash
+   npm run dev
+   ```
 
-## Learn More
+## Parsing Approach (Planned)
+- Regex date capture patterns: MM/DD, M/D, Month D, D Month, Week X anchor mapping
+- Classification w/ few-shot prompt -> event type, title, date(s)
+- Confidence = proportion of fields matching deterministic regex + model logprobs (if available) + fallback heuristic
 
-To learn more about Next.js, take a look at the following resources:
+## Roadmap
+- [ ] Auth scaffold
+- [ ] Upload endpoint (Route Handler)
+- [ ] PDF & DOCX extraction service
+- [ ] Line segmentation + pre-parse
+- [ ] LLM structuring endpoint
+- [ ] Event review UI (editable table + calendar preview)
+- [ ] Persist + calendar views
+- [ ] ICS export
+- [ ] Confidence scoring + filter
+- [ ] Google Calendar sync (optional)
+- [ ] Tests for parser (deterministic fixtures)
+- [ ] Deployment (Vercel + Neon)
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Contributing
+Internal challenge project. PRs welcome for clarity.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## License
+MIT (tentative) – can adjust per requirements.
