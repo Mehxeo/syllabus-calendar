@@ -20,6 +20,10 @@ const eslintConfig = [
       "next-env.d.ts",
     ],
   },
+    // Explicitly ignore heavy generated code to focus linting on app source
+    {
+      ignores: ['src/generated/**', 'prisma/**'],
+    },
 ];
 
 export default eslintConfig;
